@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+<package name="inteceptor"  extends="struts-default" namespace="/">
+<interceptors>
+   <!-- 定义一个管理员登入拦截器 -->  
+   <interceptor name="ManagerAuthentication" class="com.szl.interceptor.ManagerAuthenticationInterceptor">
+   </interceptor>  
+    <!-- 用户登入拦截器栈 -->       
+   <interceptor-stack name="managerdefault">  
+                <interceptor-ref name="defaultStack" />  
+                <interceptor-ref name="ManagerAuthentication"/>  
+            </interceptor-stack>  
+  </interceptors>
+</package>
+ <package name="chat" extends="inteceptor" namespace="/">
+  
+   <interceptors>
+   <!-- 定义一个用户登入拦截器 -->  
+   <interceptor name="Authentication" class="com.szl.interceptor.AuthenticationInterceptor">
+   </interceptor>  
+    <!-- 用户登入拦截器栈 -->       
+   <interceptor-stack name="mydefault">  
+                <interceptor-ref name="defaultStack" />  
+                <interceptor-ref name="Authentication" />  
+            </interceptor-stack>  
+  </interceptors>
+<!-- 管理员登入验证 -->
+  <action name="ManagerLoginAction" class="com.szl.action.ManagerLoginAction">
+              <result name="success" type="redirectAction">/admin/adminindex.jsp</result>
+		      <result name="input">/admin/admin.jsp</result>
+  </action>
+<!-- 用户登入验证 -->
+       <action name="UserLoginAction" class="com.szl.action.UserLoginAction">
+		      <result name="success" type="redirectAction">IndexAction</result>
+		      <result name="input">/index.jsp</result>
+		</action>
+		
+		
+           <!--获取房间信息		-->
+		<action name="IndexAction" class="com.szl.action.IndexAction" method="index">
+         <!--		使用用户登入拦截器确定用户已登录-->
+		    <interceptor-ref name="mydefault"></interceptor-ref>
+		     <result name="success">/chatroom.jsp</result>
+		</action>
+		
+		
+       <action name="messageAction" class="com.szl.action.MessageAction">
+        <!--		使用用户登入拦截器确定用户已登录-->
+		<interceptor-ref name="mydefault"></interceptor-ref>
+       <result name="success">/main.jsp</result>
+        <result name="userinfo">/user_info.jsp</result>
+       <result name="send">/send_info.jsp</result>
+         <result name="logout" type="redirectAction">IndexAction</result>
+       </action>
+       
+       
+       <!--     添加用户   -->
+        <action name="Useradd"  class="com.szl.action.UserManagerAction" method="add">
+          <result name="add">/admin/registrationSuccess.html</result>
+          <result name="addfail">/admin/registrationFail.html</result>
+        </action>
+<!--    manager的管理    -->
+      <action name="ManagerAction" class="com.szl.action.ManagerAction">
+          <result name="addsuccess">/admin/adminLoadSuccess.html</result>
+          <result name="addfail">/MG_Registration.jsp</result>
+          <result name="list">/admin/managerlist.jsp</result>
+          </action>
+        
+     <!-- 使用*通配符方式匹配save，list，edit方法 -->       
+        <action name="User*" class="com.szl.action.UserManagerAction" method="{1}">
+        <!--		使用管理员登入拦截器确定管理员已登录-->
+		    <interceptor-ref name="managerdefault"></interceptor-ref>
+              <result name="success" type="redirectAction">/admin/Userlist.action</result>
+              <result name="list">/admin/userlist.jsp</result>
+              <result name="edit">/admin/useredit.jsp</result>
+        </action> 
+<!--    用户添加临时房间    -->
+          <action name="RoomAction" class="com.szl.action.RoomAction">         
+            <result name="mbroomadd" type="redirectAction">IndexAction</result>
+          </action>
+        
+     <!-- 使用*通配符方式匹配save，list，edit方法 -->       
+       <action name="Room*" class="com.szl.action.RoomAction" method="{1}">
+        <!--		使用管理员登入拦截器确定管理员已登录-->
+		    <interceptor-ref name="managerdefault"></interceptor-ref>
+              <result name="success" type="redirectAction">/admin/Roomlist.action</result>
+              <result name="list">/admin/roomlist.jsp</result>
+              <result name="edit">/admin/roomedit.jsp</result>
+              
+        </action>
+        
+    </package>
+</struts>
